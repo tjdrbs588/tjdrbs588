@@ -9,8 +9,9 @@
 */
 
 var map = null;
+var object_status = false;
 var marker_count = 0;
-var marker_content = '<div class="marker_popup">';
+var marker_content = '<div class="marker_popup" data-index="%index%">';
     marker_content += '<h4>%description%</h4>';
     marker_content += '<p>%address%</p>';
     marker_content += '<div>';
@@ -23,8 +24,8 @@ function go_info() {
     location.href = "/views/add_info.html";
 }
 
-function initMap () {
-    var promises = new Promise(function(resolve) {
+function initMap () {  // SessionStorage에서 Login 토큰 있을 때 GoogleMap Api 실행
+    var promises = new Promise(function(resolve, reject) {
         var X_point			= 128.558612;		// X 좌표
         var Y_point			= 35.837143;		// Y 좌표
 
@@ -48,21 +49,37 @@ function initMap () {
             ]
         }
 
-        resolve(response);
+        var LoginToken = sessionStorage.getItem('Token');
+
+        if(LoginToken === '1') {
+            resolve(response);
+        } else {
+            reject()
+        }
     })
 
     return promises;
 }
 
 function make_marker (location) {
+    if(object_status === false) {
+        return false;
+    }
+
     var marker = new google.maps.Marker({
         position: location,
         map: map
     });
 
+    var modify_content = "";
+
+    modify_content = marker_content.replace("%index%", marker_count);
+    modify_content = marker_content.replace("%address%", "상세정보를 입력하세요.");
+    modify_content = modify_content.replace("%description%", "상세정보를 입력하세요.");
+
     marker.addListener('click', function () {
         var infoWindow = new google.maps.InfoWindow({
-            content: marker_content
+            content: modify_content
         });
 
         infoWindow.open(map, marker);
@@ -82,8 +99,10 @@ function initMarker(response) {
 
         var modify_content = "";
 
+        modify_content = marker_content.replace("%index%", index);
         modify_content = marker_content.replace("%address%", value.address);
         modify_content = modify_content.replace("%description%", value.description);
+
 
         marker.addListener('click', function () {
             var infoWindow = new google.maps.InfoWindow({
@@ -92,6 +111,8 @@ function initMarker(response) {
     
             infoWindow.open(map, marker);
         })
+
+        marker_count = index + 1;
     })
 }
 
@@ -113,5 +134,17 @@ $(function() {
             var x = event.latLng.lat();
             var y = event.latLng.lng();
         });
+    }, function() {
+        location.replace('/views/login.html')
     });
+
+    $("#add_object").on("click", function(event) {
+        object_status = !object_status;
+
+        if(object_status === true) {
+            $(this).addClass("active");
+        } else {
+            $(this).removeClass("active");
+        }
+    })
 })

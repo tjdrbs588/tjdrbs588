@@ -3,6 +3,10 @@
     padding: 0;
 }
 
+*:focus {
+    box-shadow: none !important;
+}
+
 li {
     list-style: none;
 }
@@ -126,4 +130,23 @@ li {
 
 .build_search_checkbox {
     width: 70px;
+}
+
+#add_object.active {
+    background: #555;
+}
+
+#form_login {
+    border: 1px solid #ccc;
+    padding: 30px;
+    position: absolute;
+    width: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#form_login button {
+    float: left;
+    width: 100%;
 }
